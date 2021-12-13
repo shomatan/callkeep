@@ -236,13 +236,22 @@ static CXProvider* sharedProvider;
 
     NSDictionary *dic = payload.dictionaryPayload;
 
+    NSLog(@"initial dic: %@.",dic);
+
     if (dic[@"aps"] != nil) {
-        NSLog(@"Do not use the 'alert' format for push type %@.", payload.type);
-        if(completion != nil) {
-            completion();
-        }
-        return;
+      NSMutableDictionary *mDic = [dic[@"aps"] mutableCopy];
+
+      [mDic removeObjectForKey:@"alert"];
+      // test
+      [mDic setObject:[self createUUID] forKey:@"uuid"];
+      [mDic setObject:mDic[@"constructionId"] forKey:@"caller_id"];
+      [mDic setObject:mDic[@"callerName"] forKey:@"caller_name"];
+      [mDic setObject:@"number" forKey:@"caller_id_type"];
+      [mDic setObject:@"false" forKey:@"has_video"];
+      dic = [mDic copy];
     }
+
+    NSLog(@"updated dic: %@.",dic);
 
     NSString *uuid = dic[@"uuid"];
     NSString *callerId = dic[@"caller_id"];
